@@ -1,0 +1,10 @@
+# 서브쿼리에서 등수를 매겨서 본 쿼리에서는 등수로 잘라내면 되지 않을까
+SELECT ID,
+    CASE
+        WHEN PCR <= 0.25 THEN 'CRITICAL'
+        WHEN PCR <= 0.5 THEN 'HIGH'
+        WHEN PCR <= 0.75 THEN 'MEDIUM'
+        ELSE 'LOW'
+    END AS COLONY_NAME
+FROM (SELECT ID, PERCENT_RANK() OVER (ORDER BY SIZE_OF_COLONY DESC) AS PCR FROM ECOLI_DATA) A
+ORDER BY 1
