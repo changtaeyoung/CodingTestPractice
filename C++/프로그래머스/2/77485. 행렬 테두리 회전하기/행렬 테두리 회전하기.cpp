@@ -5,80 +5,76 @@
 using namespace std;
 
 /*
-    꼭 정사각형은 아님.
-    중간 애들은 빠지고 돌리는 거임
-    여러번 돌릴 수 있는데, 그 전 턴에 돌린 결과는 유지되어야함.
-    그래서 그 범위 내에 있는 최솟값을 원하는 것
-    
-    1자 배열이라고 생각하고 돌린 다음에 넣으면 되지 않을까?
-    예를 들어서 8, 9, 10, 16, 22, 28, 27, 26, 20, 14를 돌리는거 잖아
-    (2,2) ~  (5,4) 2와 5만을 포함하고 3,4는 제껴야지. 더해서  2와 4는 포함하고 3은 제껴.
-    그러면 (3,3), (4,3)을 제낄 수 있지.
+    라인의 값만 추출해서 덱을 만들고, 한칸씩 뒤로 미뤄.
+    그다음에 순서대로 다시 집어넣으면 끝
+    덱에서도 그냥 최소 숫자 찾으면 됨
 */
 
-int arr[100][100];
+int map[101][101];
 
 vector<int> solution(int rows, int columns, vector<vector<int>> queries) {
     vector<int> answer;
     
-    // arr 채우기 (0base)
     int num = 1;
-    for (int i = 0; i < rows; i++) {
-        for (int j = 0; j < columns; j++) {
-            arr[i][j] = num;
+    for (int i = 1; i <= rows; i++) { // 1base
+        for (int j = 1; j <= columns; j++) { // 1base
+            map[i][j] = num;
             num++;
         }
     }
     
-    // vector 추출하기 (1base니까 바꿔줘야함)
     for (int i = 0; i < queries.size(); i++) {
+        deque<int> tmp;
+        int sx = queries[i][0], sy = queries[i][1];
+        int ex = queries[i][2], ey = queries[i][3];
         int min = 1e9;
-        int stX = queries[i][0] - 1, stY = queries[i][1] - 1;
-        int endX = queries[i][2] - 1, endY = queries[i][3] - 1;
         
-        deque<int> temp;
-        
-        for (int j = stY; j < endY; j++) {
-            temp.push_back(arr[stX][j]);
-        }
-        
-        for (int j = stX; j < endX; j++) {
-            temp.push_back(arr[j][endY]);
-        }
-        
-        for (int j = endY; j > stY; j--) {
-            temp.push_back(arr[endX][j]);
-        }
-        
-        for (int j = endX; j > stX; j--) {
-            temp.push_back(arr[j][stY]);
-        }
-        
-        // 위치 변환
-        // 맨 뒤의 요소를 빼서 맨 앞으로 넣는다. (시계 방향 1칸 회전)
-        temp.push_front(temp.back());
-        temp.pop_back();
-        
-        int idx = 0; // temp를 앞에서부터 순서대로 꺼낼 인덱스
-
-        // 위쪽 가로
-        for (int j = stY; j < endY; j++) arr[stX][j] = temp[idx++];
-
-        // 오른쪽 세로
-        for (int i = stX; i < endX; i++) arr[i][endY] = temp[idx++];
-
-        // 아래쪽 가로
-        for (int j = endY; j > stY; j--) arr[endX][j] = temp[idx++];
-
-        // 왼쪽 세로
-        for (int i = endX; i > stX; i--) arr[i][stY] = temp[idx++];
-        
-        for (int j = 0; j < temp.size(); j++) {
-            if (min > temp[j]) {
-                min = temp[j];
+        for (int i = sy; i < ey; i++) {
+            tmp.push_back(map[sx][i]);
+            if (min > map[sx][i]) {
+                min = map[sx][i];
             }
         }
+        for (int i = sx; i < ex; i++) {
+            tmp.push_back(map[i][ey]);
+            if (min > map[i][ey]) {
+                min = map[i][ey];
+            }
+        }
+        for (int i = ey; i > sy; i--) {
+            tmp.push_back(map[ex][i]);
+            if (min > map[ex][i]) {
+                min = map[ex][i];
+            }
+        }
+        for (int i = ex; i > sx; i--) {
+            tmp.push_back(map[i][sy]);
+            if (min > map[i][sy]) {
+                min = map[i][sy];
+            }
+        }
+        
         answer.push_back(min);
+        
+        tmp.push_front(tmp.back());
+        tmp.pop_back();
+        
+        for (int i = sy; i < ey; i++) {
+            map[sx][i] = tmp.front();
+            tmp.pop_front();
+        }
+        for (int i = sx; i < ex; i++) {
+            map[i][ey] = tmp.front();
+            tmp.pop_front();
+        }
+        for (int i = ey; i > sy; i--) {
+            map[ex][i] = tmp.front();
+            tmp.pop_front();
+        }
+        for (int i = ex; i > sx; i--) {
+            map[i][sy] = tmp.front();
+            tmp.pop_front();
+        }
     }
     
     return answer;
