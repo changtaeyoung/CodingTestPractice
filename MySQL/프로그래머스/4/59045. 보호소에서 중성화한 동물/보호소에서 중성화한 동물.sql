@@ -1,0 +1,15 @@
+-- 코드를 입력하세요
+# 보호소 in에서는 중성화 되어있지 않아야하고
+# out에서는 중성화 되어있ㅇ는 애들을 구해야함
+
+
+SELECT A.ANIMAL_ID, A.ANIMAL_TYPE, A.NAME
+FROM (SELECT ANIMAL_ID, ANIMAL_TYPE, NAME
+        FROM ANIMAL_INS
+        WHERE SEX_UPON_INTAKE LIKE 'Intact%') A
+    INNER JOIN (SELECT ANIMAL_ID, ANIMAL_TYPE, NAME
+        FROM ANIMAL_OUTS
+        WHERE !(SEX_UPON_OUTCOME LIKE 'Intact%')) B
+    ON A.ANIMAL_ID = B.ANIMAL_ID
+ORDER BY A.ANIMAL_ID
+
