@@ -1,47 +1,52 @@
-import java.util.*;
-
 class Solution {
     /*
-        최대 20만,
-        여러 친구들이 뛸 예정이고, 0이 있지 않는 이상 1칸씩,
-        0이 k칸이 있다면 k칸까지 뛸 수 있으나 거기까지만 가능.
+        일단 배열 크기 20만 이하. 즉, 브루트 포스 사용 불가
         
-        연속된 0의 수가 k개인 가를 확인해야함. 
-        최대 연속 0의 개수를 max의 변수를 이용해서 갱신하며 계산한다?
-        현재 위치한 곳이 0이면서 다음이 0일 경우
-        현재 위치한 곳이 0이 아니면서 다음이 0일 경우
-        현재 위치한 곳이 0 또는 0이 아닌 경우, 다음이 0이 아닌경우
+        건널 때마다 -1씩 되니까...
+        
+        생각 1: 갑자기 떠올랐는데 사람의 수를 이분 탐색 시켜보는 건 어떰?
+        예를 들어서 뭐 stones에 있는 제일 큰 값을 가져와서.
+        사람의 수를 - 시켜서 연속된 0의 길이를 세고, 
+        -> 여기서 문제, stones 배열의 값을 변경하면 오염된다.. (전에 0이였던 값을 기억한다?)
+        k보다 크다면 사람 수 줄이고, k보다 작다면 가능한 거고. (사람의 수를 더 늘려보는거지)
     */
     public int solution(int[] stones, int k) {
-        int minPerson = 1, maxPerson = 200000000, answer = -1;
+        int minP = 1, maxP = -1, answer = 0;
+        for (int i = 0; i < stones.length; i++) {
+            if (maxP < stones[i]) {
+                maxP = stones[i];
+            }
+        }
         
-        while (minPerson <= maxPerson) {
-            int averPerson = (minPerson + maxPerson) / 2;
-            // 총 0 개수, 연속된 0 개수
-        
-            int consZero = 0;
+        while (minP <= maxP) {
+            int averP = (minP + maxP) / 2;
             boolean cannotCross = false;
-
+            int consZero = 0;
+            
+            // 전에 0이 였던 값을 기억하는 것이 아닌, 
+            // 현재 위치의 값이 0인지 아닌지에 따라 구분지으면 쉽게 풀 수 있다.
             for (int i = 0; i < stones.length; i++) {
-                if (stones[i] - averPerson < 0) {
+                if (stones[i] - averP < 0) {
                     consZero++;
+                    
                     if (consZero >= k) {
                         cannotCross = true;
                         break;
                     }
-                } else {
+                }
+                else {
                     consZero = 0;
                 }
             }
-
+            
             if (cannotCross) {
-                maxPerson = averPerson - 1;
-            } else {
-                answer = averPerson;
-                minPerson = averPerson + 1;
+                maxP = averP - 1;
+            }
+            else {
+                answer = averP;
+                minP = averP + 1;
             }
         }
-        
         return answer;
     }
 }
