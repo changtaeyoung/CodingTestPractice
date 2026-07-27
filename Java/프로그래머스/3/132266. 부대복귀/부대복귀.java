@@ -1,46 +1,36 @@
 import java.util.*;
 
 class Solution {
-    
-    static List<List<Integer>> graph;
-    static boolean[] visited;
-    
-    static int ds (int idx, int eIdx) {
-        Queue<int[]> q = new ArrayDeque<>();
-        q.offer(new int[]{idx, 0});
-        
+    public int[] solution(int n, int[][] roads, int[] sources, int destination) {
+        List<List<Integer>> graph = new ArrayList<>();
+        for (int i = 0; i <= n; i++) graph.add(new ArrayList<>());
+
+        for (int[] road : roads) {
+            graph.get(road[0]).add(road[1]);
+            graph.get(road[1]).add(road[0]);
+        }
+
+        int[] dist = new int[n + 1];
+        Arrays.fill(dist, -1);
+        dist[destination] = 0;
+
+        // destination에서 딱 한 번만 BFS
+        Queue<Integer> q = new ArrayDeque<>();
+        q.offer(destination);
         while (!q.isEmpty()) {
-            int[] c = q.poll();
-            
-            if (c[0] == eIdx) return c[1];
-            
-            for (int next : graph.get(c[0])) {
-                if (!visited[next]) {
-                    visited[next] = true;
-                    q.offer(new int[]{next, c[1] + 1});
+            int cur = q.poll();
+            for (int next : graph.get(cur)) {
+                if (dist[next] == -1) {          // 방문 체크 겸 거리 갱신
+                    dist[next] = dist[cur] + 1;
+                    q.offer(next);
                 }
             }
         }
-        return -1;
-    }
-    
-    public int[] solution(int n, int[][] roads, int[] sources, int destination) {
-        graph = new ArrayList<>();
-        for (int i = 0; i <= n; i++) {
-            graph.add(new ArrayList<>());
-        }
-        
-        for (int i = 0; i < roads.length; i++) {
-            graph.get(roads[i][0]).add(roads[i][1]);
-            graph.get(roads[i][1]).add(roads[i][0]);
-        }
-        
+
         int[] answer = new int[sources.length];
         for (int i = 0; i < sources.length; i++) {
-            visited = new boolean[n + 1];
-            answer[i] = ds(sources[i], destination);
+            answer[i] = dist[sources[i]];         // O(1) 조회
         }
-        
         return answer;
     }
 }
