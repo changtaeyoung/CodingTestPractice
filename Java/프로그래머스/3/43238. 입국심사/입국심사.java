@@ -1,33 +1,32 @@
 import java.util.*;
 
 class Solution {
-    public long solution(int n, int[] times) {
-        long answer = 0, maxTime = -100, minTime = 0;
-        
+    public long solution(int n, int[] times) {        
+        long minT = 1, maxT = 0;
         for (int i = 0; i < times.length; i++) {
-            if (maxTime < times[i]) {
-                maxTime = times[i];
+            if (maxT < times[i]) {
+                maxT = times[i];
             }
         }
-        maxTime *= n;
+        maxT *= n;
         
-        while (minTime <= maxTime) {
-            long t = (minTime + maxTime) / 2;
-            long p = 0;
+        long answer = 0;
+        while (minT <= maxT) {
+            long averT = (minT + maxT) / 2;
+            long totalP = 0;
             
             for (int i = 0; i < times.length; i++) {
-                p += (t / times[i]);
+                totalP += averT / times[i];
             }
             
-            if (n <= p) {
-                maxTime = t - 1;
-                answer = t;
+            if (totalP >= n) {
+                answer = averT;
+                maxT = averT - 1;
             }
             else {
-                minTime = t + 1;
+                minT = averT + 1;
             }
         }
-        
         return answer;
     }
 }
