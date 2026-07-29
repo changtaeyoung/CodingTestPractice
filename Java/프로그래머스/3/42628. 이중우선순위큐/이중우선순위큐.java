@@ -1,41 +1,46 @@
 import java.util.*;
 
 class Solution {
-    /*
-        min {, 16, 123}
-        max {123}
-    */
     public int[] solution(String[] operations) {
-        
-        PriorityQueue<Integer> minpq = new PriorityQueue<>();
-        PriorityQueue<Integer> maxpq = new PriorityQueue<>(Collections.reverseOrder());
-        
-        for (String order : operations) {
-            
-            if (order.charAt(0) == 'I') { // I
-                int num = Integer.parseInt(order.substring(2));
-                minpq.offer(num);
-                maxpq.offer(num);
-            }
-            else { // D
-                
-                if (!minpq.isEmpty() && !maxpq.isEmpty()) { // 당연히 빼려면 큐에 값이 있어야지.
+        PriorityQueue<Integer> minHeap = new PriorityQueue<>();
+        PriorityQueue<Integer> maxHeap = new PriorityQueue<>(Collections.reverseOrder());
+        Map<Integer, Integer> valueCnt = new HashMap<>();
+        int size = 0;
 
-                    if (order.substring(2).equals("-1")) { // 최솟값 빼기
-                        maxpq.remove(minpq.poll());
+        for (String op : operations) {
+            String[] s = op.split(" ");
+
+            if (s[0].equals("I")) {
+                int num = Integer.parseInt(s[1]);
+                minHeap.offer(num);
+                maxHeap.offer(num);
+                valueCnt.put(num, valueCnt.getOrDefault(num, 0) + 1);
+                size++;
+            } else {
+                if (size == 0) continue;
+
+                if (s[1].equals("1")) {
+                    while (valueCnt.getOrDefault(maxHeap.peek(), 0) == 0) {
+                        maxHeap.poll();
                     }
-                    else { // 최댓값 빼기
-                        minpq.remove(maxpq.poll());
+                    int popNum = maxHeap.poll();
+                    valueCnt.put(popNum, valueCnt.getOrDefault(popNum, 0) - 1);
+                } else {
+                    while (valueCnt.getOrDefault(minHeap.peek(), 0) == 0) {
+                        minHeap.poll();
                     }
+                    int popNum = minHeap.poll();
+                    valueCnt.put(popNum, valueCnt.getOrDefault(popNum, 0) - 1);
                 }
+                size--;
             }
         }
-        
-        if (maxpq.isEmpty() && minpq.isEmpty()) {
-            return new int[]{0, 0};
-        }
-        else {
-            return new int[]{maxpq.poll(), minpq.poll()};
-        }
+
+        if (size == 0) return new int[]{0, 0};
+
+        while (valueCnt.getOrDefault(maxHeap.peek(), 0) == 0) maxHeap.poll();
+        while (valueCnt.getOrDefault(minHeap.peek(), 0) == 0) minHeap.poll();
+
+        return new int[]{maxHeap.peek(), minHeap.peek()};
     }
 }
