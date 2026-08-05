@@ -1,17 +1,18 @@
 import java.util.*;
 
 class Solution {
-    
     public int solution(int n, int s, int a, int b, int[][] fares) {
         int[][] dist = new int[n + 1][n + 1];
-        for (int i = 0; i <= n; i++) {
-            Arrays.fill(dist[i], Integer.MAX_VALUE);
-            dist[i][i] = 0;
+
+        for (int i = 0; i < dist.length; i++) {
+            for (int j = 0; j < dist[i].length; j++) {
+                if (i != j) dist[i][j] = Integer.MAX_VALUE;
+            }
         }
         
-        for (int[] fare : fares) {
-            dist[fare[0]][fare[1]] = fare[2];
-            dist[fare[1]][fare[0]] = fare[2];
+        for (int i = 0; i < fares.length; i++) {
+            dist[fares[i][0]][fares[i][1]] = fares[i][2];
+            dist[fares[i][1]][fares[i][0]] = fares[i][2];
         }
         
         for (int i = 1; i <= n; i++) {
@@ -24,10 +25,13 @@ class Solution {
             }
         }
         
-        int answer = dist[s][a] + dist[s][b];
+        int ans = dist[s][a] + dist[s][b];
         for (int i = 1; i <= n; i++) {
-            answer = Math.min(answer, dist[s][i] + dist[i][a] + dist[i][b]);
+            if (ans > dist[s][i] + dist[i][a] + dist[i][b]) {
+                ans = dist[s][i] + dist[i][a] + dist[i][b];
+            }
         }
-        return answer;
+        
+        return ans;
     }
 }
