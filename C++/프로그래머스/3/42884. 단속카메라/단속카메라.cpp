@@ -1,42 +1,30 @@
 #include <string>
 #include <vector>
-#include <iostream>
 #include <algorithm>
 
 using namespace std;
 
 /*
-    10000대 이하
-    최소 대수를 구해야함
-    최소! DP, BFS, Greedy 등..
-    BFS는 당연히 아니고, DP, Greedy일 듯 한데...
-
-    -20,-15
-    -18,-13
-    -14,-5
-    -5,-3
+    이런 문제는 앞을 정렬해야할지, 뒤를 기준으로 정렬해야할지가 나뉜다.
+    끝나는 지점에 하나씩 단속카메라를 넣으면 최소 개수가 가능할 것으로 보임
 */
 
-bool compare (vector<int> v1, vector<int> v2) {
-    if (v1[1] < v2[1]) {
-        return true;
-    }
-    return false;
-}
-
 int solution(vector<vector<int>> routes) {
-    int answer = 0, cmIdx = -999999;
     
-    sort(routes.begin(), routes.end(), compare);
-    
-    cmIdx = routes[0][1];
-    answer++;
-    for (int i = 0; i < routes.size(); i++) {
-        if (cmIdx < routes[i][0]) { // cmIdx 카메라 설치한 곳보다 시작점이 멀리있을 경우
-            cmIdx = routes[i][1];
-            answer++;
+    sort(routes.begin(), routes.end(), [](vector<int> v1, vector<int> v2) {
+        if (v1[1] == v2[1]) {
+            return v1[0] < v2[0];
         }
-        
-    } 
-    return answer;
+        return v1[1] < v2[1];
+    }); // 뒷 원소를 기준으로 오름차순 정렬, 뒤 원소가 같다면 첫번째 원소로 정렬
+    
+    int idx = routes[0][1], ans = 1;
+    for (int i = 1; i < routes.size(); i++) {
+        if (idx < routes[i][0]) {
+            idx = routes[i][1];
+            ans++;
+        }
+    }
+    
+    return ans;
 }
