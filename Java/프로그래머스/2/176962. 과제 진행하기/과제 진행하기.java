@@ -1,42 +1,56 @@
 import java.util.*;
-/*
-    과제 시작 시간 -> 시작
-    진행중인 과제가 있다면 멈추고 새로운 과제 시작
-    과제 끝냈을 때 -> 겹치는 과제가 있다면 새로 시작해야하는 과제부터 진행
-    멈춘 과제 여러 개면 가장 최근 멈춘 과제 시작
-    
-    큐가 필요할거같은데. 우선순위 큐가.
-    
-    일단 시간과 같은 경우는 그냥 int type으로 바꾸는게 맘 편해.
-    
-*/
+
 class Solution {
     public String[] solution(String[][] plans) {
-        // 시작 시간, 끝나는 시각, 플랜들 배열에서의 인덱스를 저장해놔야할 듯 함.
-        // 끝나는 시간이 제일 우선이니까 끝나는 시각 오름차순. 
-        // 같을 경우는 시작 시간이 느린 게 최신이니까. 그것을 먼저 빼야하니, 내림차순으로 우선순위 큐 저장
-        PriorityQueue<int[]> pq = new PriorityQueue<>((a, b) -> {
-            if (a[1] == b[1]) {
-                return Integer.compare(b[0], a[0]);
-            }
-            return Integer.compare(a[1], b[1]);
-        }); // 정렬 기준 필요
         
+        int[][] arr = new int[plans.length][3];
         for (int i = 0; i < plans.length; i++) {
-            String[] str = plans[i][1].split(":");
-            int sTime = Integer.parseInt(str[0]) * 60 + Integer.parseInt(str[1]);
-            int eTime = sTime + Integer.parseInt(plans[i][2]);
-            pq.offer(new int[]{sTime, eTime, i});
-        }
-        System.out.println("우선순위 큐 사이즈: " + pq.size());
-        
-        String[] answer = new String[plans.length];
-        int idx = 0;
-        while (!pq.isEmpty()) {
-            answer[idx] = plans[pq.poll()[2]][0];
-            idx++;
+            String[] hm = plans[i][1].split(":");
+            arr[i][0] = Integer.parseInt(hm[0]) * 60 + Integer.parseInt(hm[1]);
+            arr[i][1] = Integer.parseInt(plans[i][2]);
+            arr[i][2] = i;
         }
         
-        return answer;
+        Arrays.sort(arr, (a, b) -> a[0] - b[0]);
+        
+        Stack<int[]> s = new Stack<>();
+        List<String> l = new ArrayList<>();
+        
+        for (int i = 0; i < arr.length - 1; i++) {
+            int[] cur = arr[i];
+            int gap = arr[i + 1][0] - cur[0];
+            
+            if (cur[1] <= gap) {
+                l.add(plans[cur[2]][0]);
+                int left = gap - cur[1];
+                
+                while (left > 0 && !s.isEmpty()) {
+                    int[] top = s.peek();
+                    if (top[1] <= left) {
+                        l.add(plans[top[2]][0]);
+                        left -= top[1];
+                        s.pop();
+                    }
+                    else {
+                        top[1] -= left;
+                        left = 0;
+                    }
+                }
+            }
+            else {
+                cur[1] -= gap;
+                s.push(cur);
+            }
+        }
+        l.add(plans[arr[arr.length - 1][2]][0]);
+        while (!s.isEmpty()) {
+            l.add(plans[s.pop()[2]][0]);
+        }
+        
+        String[] ans = new String[l.size()];
+        for (int i = 0; i < ans.length; i++) {
+            ans[i] = l.get(i);
+        }
+        return ans;
     }
 }
