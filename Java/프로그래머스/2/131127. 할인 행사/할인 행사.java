@@ -25,21 +25,11 @@ class Solution {
         
         // 판단 해야지
         if (check(want, number, ifRegiToday)) can++;
-        if (discount.length > right) {
-            right++;
-        }
-        else if (discount.length == right) {
-            return can;
-        }
+        right++;
         
         while (right < discount.length) {
-            // 지우지 않고 0으로 저장해놓기
-            if (ifRegiToday.getOrDefault(discount[left], 0) < 1) {
-                ifRegiToday.put(discount[left], 0);
-            }
-            else { // 1 이상 있다면 좌측은 한칸 이동할 거니까 그 위치에 있는 값 빼고 이동
-                ifRegiToday.put(discount[left], ifRegiToday.get(discount[left]) - 1);
-            }
+            // 1 이상 있다면 좌측은 한칸 이동할 거니까 그 위치에 있는 값 빼고 이동
+            ifRegiToday.put(discount[left], ifRegiToday.get(discount[left]) - 1);
             left++;
             
             // 우측 값은 위에서 이동했으니 개수 갱신
